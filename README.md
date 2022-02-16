@@ -4,18 +4,14 @@ Making path by lines and driving car by Pygame.
 ----------------------------------------------
 
 To test run the Appstarter.py use control command at bottom of the page
+if there is any problem run this command at terminal ' pip install pygame ' 
 
 ----------------------------------------------
 
+Moving designes are based on LineRect.py file.
+There is a file can represent as a car ( Optional car). Here we didin't use it. 
 
-
-
-
-
-
-
-
-
+----------------------------------------------
 --Adding new Objects---
 press ' e ' to edit
 
