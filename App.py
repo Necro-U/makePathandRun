@@ -53,7 +53,8 @@ class App():
 
     def eventprogressor(self):
         for event in pygame.event.get():
-                if event.type == pygame.QUIT: sys.exit()
+                if event.type == pygame.QUIT or self.keys[pygame.K_ESCAPE]  :
+                    sys.exit() 
                 
 
                 if self.editbool:
