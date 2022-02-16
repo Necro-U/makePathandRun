@@ -3,7 +3,7 @@ import pygame,math
 from Drawable import Drawable
 
 class TextRenderer(Drawable):
-    def __init__(self,surface : pygame,text, pos) -> None:
+    def __init__(self,surface : pygame,text : str, pos : tuple) -> None:
         super().__init__(surface, pos)
         self.textfont='freesansbold.ttf'
         self.textsize=20

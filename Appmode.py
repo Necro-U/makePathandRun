@@ -1,10 +1,11 @@
+import pygame
 from Rectangle import Rectangle
 from TextRenderer import TextRenderer
 
 
 class Appmode():
 
-    def __init__(self,screen) -> None:
+    def __init__(self,screen : pygame.Surface) -> None:
         self.screen=screen
         self.linedit=False
         self.caredit=False

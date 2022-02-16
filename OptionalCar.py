@@ -12,7 +12,7 @@ def blit_rotate_center(screen,surface,top_left,angle):
 # You can create a car and drive it but its a image. Rejected go check linerect
 class Car(UiElements):
     IMG=pygame.image.load('purple-car.png')
-    def __init__(self,surface : pygame.Surface,pos) -> None:
+    def __init__(self,surface : pygame.Surface,pos : tuple) -> None:
         super().__init__(surface,pos,40,60)
         self.speed=0
         self.rot_speed=0.2
