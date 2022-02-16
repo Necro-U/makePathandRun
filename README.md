@@ -1,6 +1,21 @@
 # makePathandRun
 Making path by lines and driving car by Pygame.
 
+----------------------------------------------
+
+To test run the Appstarter.py use control command at bottom of the page
+
+----------------------------------------------
+
+
+
+
+
+
+
+
+
+
 --Adding new Objects---
 press ' e ' to edit
 
