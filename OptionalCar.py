@@ -89,4 +89,3 @@ class Car(UiElements):
     
     def rotate(self):
         blit_rotate_center(self.surface,self.img,(self.x,self.y),self.angle)
-    

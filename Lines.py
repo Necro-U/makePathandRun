@@ -4,7 +4,7 @@ from Drawable import Drawable
 
 class Lines(Drawable):
 
-    def __init__(self, surface : pygame.Surface,linesf : int,linesl : int) -> None:
+    def __init__(self, surface : pygame.Surface,linesf : list,linesl : list) -> None:
         self.surface=surface
         self.lastpos=(0,0)
         self.pos=(0,0)
@@ -18,8 +18,36 @@ class Lines(Drawable):
         self.leftclick=False
         self.linefinish=False
         self.lineBool=False
-      
+        self.notshower=[]
+
+    def lineSaver(self):
+        try:   
+            lastlines=open('./lastlines/lines.txt','w')
+        except:
+            lastlines=open('./lastlines/lines.txt','x')
+            lastlines.close()
+            lastlines=open('./lastlines/lines.txt','w')
+
+        for i in range(len(self.linesf)):
+            if self.linesf[i] not in self.notshower:
+                lastlines.write(str(self.linesf[i][0])+','+str(self.linesf[i][1])+ ';'+str(self.linesl[i][0])+','+str(self.linesl[i][1])+'\n')
+
+        lastlines.close()
+
+
+    def takeSavedLines(self):
+        savedLines=open('./lastlines/lines.txt','r')
+        for i in savedLines:
+                print(i)
+                f,l=i.split(';')
+                f1,f2=f.split(',')
+                l1,l2=l.split(',')
+                self.linesf.append((int(f1),int(f2)))
+                self.linesl.append((int(l1),int(l2)))
+
+
     def drawSingleLine(self,firstpos,lastpos,notshower):
+        self.notshower=notshower
         if firstpos not in notshower:
             fx=firstpos[0]
             fy=firstpos[1]

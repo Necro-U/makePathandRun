@@ -1,10 +1,10 @@
 import pygame,math
 from Drawable import Drawable
 from math import cos,sin,asin,radians
-
+from Lines import Lines
 
 class LineRect(Drawable):
-    def __init__(self, surface: pygame, pos : tuple) -> None:
+    def __init__(self, surface: pygame, pos : tuple , lineslast : list,linesfirst : list ) -> None:
         super().__init__(surface, pos)
         self.weight=80
         self.height=40
@@ -17,6 +17,10 @@ class LineRect(Drawable):
         self.maxvel=0.8
         self.rotvel=radians(0.4)
         self.acc=0.02
+        self.laserangle=0
+
+        self.linesf=linesfirst
+        self.linesl=lineslast
 
         self.backbool=False
         self.forwbool=False
@@ -43,9 +47,9 @@ class LineRect(Drawable):
         self.p4=(self.middot[0]+cos(self.a4[0]+self.angle)*self.r,self.middot[1]+sin(self.a4[1]+self.angle)*self.r)
 
 
-
     def drawrect(self):
-        pygame.draw.lines(self.surface,self.color,True,[self.p1,self.p2,self.p3,self.p4],3)    
+        pygame.draw.lines(self.surface,self.color,True,[self.p1,self.p2,self.p3,self.p4],3) 
+        self.laserpoints(self.linesf,self.linesl)   
 
     # trying rotate by middle line but something gone wrong
     def rotateMiddleLine(self):
@@ -69,7 +73,6 @@ class LineRect(Drawable):
         if left:
             self.angle+=self.rotvel
 
-        # self.refreshpoints()
         self.drawrect()
 
 
@@ -100,12 +103,103 @@ class LineRect(Drawable):
             self.drawrect()
 
 
+#Lasers
+
+    # def barr(self,liner):
+    #     ml=[]
+    #     for i in range(len(self.liner.linesf)):
+    #         m=(liner.linesl[i][1]-liner.linesf[i][1])/(liner.linesl[0]-liner.linesf[0])
+    #         ml.append(m)
+    #     return ml
+    # def barrDetector(self,fp):
+    #     # if one laser crops an line 
+    #     mlist=self.barr(self.liner)
+    #     for i in self.lasersLastPoints:
+    #         for j in range(len(self.liner.linesf)):
+    #             # first condition is if laser's first point's x is lower then barrier's first point's x and laser's last point's x is higher then barrier's last point's x ....  
+    #             if ((fp[0]<self.liner.linesf[j][0] and i[0]>self.liner.linesl[j][0]) or (fp[1]<self.liner.linesf[j][1] and i[1]>self.liner.linesl[1]) ) or ( (fp[0]>self.liner.linesf[j][0] and i[0]<self.liner.linesl[j][0]) or (fp[1]>self.liner.linesf[j][1] and i[1]<self.liner.linesl[1])):
+    #                 self.lasersLastPoints[i]=50
+    
+    @staticmethod
+    def barrfunc(linesf:list,linesl:list):
+        ml=[]
+        for i in range(len(linesf)):
+            m=(linesf[i][1]-linesl[i][1])/(linesf[i][0]-linesl[i][0])
+            b=linesf[i][1]-m*linesf[i][0]
+            ml.append((m,b))
+        return ml
+    def laserfunc(self,fp:tuple,las:tuple):
+        #las is one lasers last point
+        m=(fp[1]-las[1])/(fp[0]-las[0])
+        b=fp[1]-m*fp[0]
+        return (m,b)
+
+    
+    def closestbar(self,fp:tuple,laslast:tuple,linesf:list,linesl:list):
+        clist=[]
+        cbool=False
+        laser=self.laserfunc(fp,laslast)
+        for i in range(len(linesf)):
+            # if x of laser' first point lower then x of line's first point and x of last point of laser higher then x of line's last point  
+            #((linesf[i][0]<fp[0] and linesl[i][0]>laslast[0] and (fp[0]<linesl[i][0] or laslast[0]>linesf[i][0]) ) or (linesf[i][0]>fp[0] and linesl[i][0]<laslast[0] and (fp[0]<linesl[i][0] or laslast[0]>linesf[i][0])) ) or (linesl[i][1]<laslast[1] and fp[1]<linesf[i][1] and (fp[1]<linesl[i][1] or laslast[1]>linesf[i][1])) or (linesl[i][1]>laslast[1] and fp[1]>linesf[i][1] and (fp[1]<linesl[i][1] or laslast[1]>linesf[i][1]))
+            if (laser[0]*linesf[i][0]+laser[1] < linesf[i][1] and laser[0]*linesl[i][0]+laser[1] > linesl[i][1]) or (laser[0]*linesf[i][0]+laser[1] > linesf[i][1] and laser[0]*linesl[i][0]+laser[1] < linesl[i][1]) :
+                clist.append(i)
+                cbool=True
+            #burda yukardakinde 2 tane arka arkaya gelirse ne olur ona bir bak. Yukarıda uzaklık kontrolü de yapılıyor onu yapmamız gerekmiyor
+        return (cbool,clist)
+
+
+    def lasercut(self,fp:tuple,las:tuple,linesf:list,linesl:list,closest:int):
+        laser=self.laserfunc(fp,las)
+        # Barrier's m and b
+        barrsList=self.barrfunc(linesf,linesl)
+        # if the closestpoint is our laser's max distance
+        # if closest is tuple:
+        #     return closest
+       
+        # x= d-b / a-c  |  y=ax+b(lasers func)=cx+d (barr func)
+        x=(barrsList[closest][1]-laser[1])/(laser[0]-barrsList[closest][0])
+        y=laser[0]*x + laser[1]
+        #these are ours new x and y values. we will assign these values at laser's new last point
+        return (x,y)
+    
+    
+    @staticmethod
+    def pointdist(p1:tuple,p2:tuple):
+        return (p1[0]-p2[0])**2+(p1[1]-p2[1])**2
+
+
+    def laserpoints(self,linesf,linesl):
+        #lasers 1. poin is middle point. 
+        fp=((self.p1[0]+self.p3[0])/2,(self.p1[1]+self.p3[1])/2)
+        dist=200   
+        self.laserangle+=radians(0.2)
+        rotatedist=(dist*cos(self.laserangle),dist*sin(self.laserangle))
+        # laser points by rotate factor
+        #  0-----0-----0
+        #fp[0]+dist*cos(self.laserangle+radians(90)),fp[1]+dist*sin(self.laserangle+radians(90))
+        self.lasersLastPoints= [(fp[0]+rotatedist[0],fp[1]+rotatedist[1]),(fp),(fp[0]+dist*cos(self.laserangle+radians(180)),fp[1]+dist*sin(self.laserangle+radians(180))),(fp[0]+dist*cos(self.laserangle+radians(-90)),fp[1]+dist*sin(self.laserangle+radians(-90)))]
+        # laserpoint 4 için deneme Bunu tüm laserler için dönecez
+        barfinder=self.closestbar(fp,self.lasersLastPoints[3],linesf,linesl)
+        # barfinder[1].append(self.lasersLastPoints[3])
+        # last item of barfinder means self.laserLastPoints[3]
+        closestBarr=len(barfinder[1])-1
+        if barfinder[0]:
+            for i in barfinder[1]:
+                if self.pointdist(fp,self.lasercut(fp,self.lasersLastPoints[3],linesl,linesf,closestBarr))> self.pointdist(fp,self.lasercut(fp,self.lasersLastPoints[3],linesl,linesf,i)):#barfinder[1][i]
+                    closestBarr=i
+            if self.pointdist(fp,self.lasercut(fp,self.lasersLastPoints[3],linesl,linesf,closestBarr)) < 200**2:
+                self.lasersLastPoints[3]=self.lasercut(fp,self.lasersLastPoints[3],linesl,linesf,closestBarr)
+        # self.barrDetector(fp)
+        for i in self.lasersLastPoints:
+            pygame.draw.line(self.surface,self.color,fp,i,2)
+    
     # pressing gas
     def move(self,forw=False,back=False):
         rad=self.angle
         y=math.sin(rad)*self.speed[1]
         x=math.cos(rad)*self.speed[0]
-        # if forw:
+    
         self.p1=(self.p1[0]+x,self.p1[1]+y)
         self.p2=(self.p2[0]+x,self.p2[1]+y)
         self.p3=(self.p3[0]+x,self.p3[1]+y)
