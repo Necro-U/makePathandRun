@@ -5,7 +5,7 @@ from TextRenderer import TextRenderer
 
 class Appmode():
 
-    def __init__(self,screen : pygame.Surface) -> None:
+    def __init__(self,screen : pygame.Surface.subsurface) -> None:
         self.screen=screen
         self.linedit=False
         self.caredit=False

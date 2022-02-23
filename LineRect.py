@@ -4,7 +4,7 @@ from math import cos,sin,asin,radians
 from Lines import Lines
 
 class LineRect(Drawable):
-    def __init__(self, surface: pygame, pos : tuple , lineslast : list,linesfirst : list ) -> None:
+    def __init__(self, surface: pygame.Surface.subsurface, pos : tuple , lineslast : list,linesfirst : list ) -> None:
         super().__init__(surface, pos)
         self.weight=80
         self.height=40

@@ -4,7 +4,7 @@ from Drawable import Drawable
 
 class Lines(Drawable):
 
-    def __init__(self, surface : pygame.Surface,linesf : list,linesl : list) -> None:
+    def __init__(self, surface : pygame.Surface.subsurface,linesf : list,linesl : list) -> None:
         self.surface=surface
         self.lastpos=(0,0)
         self.pos=(0,0)

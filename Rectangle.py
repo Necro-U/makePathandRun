@@ -3,7 +3,7 @@ import pygame
 
 class Rectangle(Drawable):
     
-    def __init__(self, surface : pygame,pos : tuple,weight : int ,length : int) -> None:
+    def __init__(self, surface : pygame.Surface.subsurface,pos : tuple,weight : int ,length : int) -> None:
         super().__init__(surface,pos)
         self.weight=weight
         self.length=length

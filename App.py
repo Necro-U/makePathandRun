@@ -11,8 +11,6 @@ from UiElements import UiElements
 
 
 
-
-
 class App():
 
     def __init__(self) -> None:
