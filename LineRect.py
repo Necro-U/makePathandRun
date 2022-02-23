@@ -102,23 +102,6 @@ class LineRect(Drawable):
         else:
             self.drawrect()
 
-
-#Lasers
-
-    # def barr(self,liner):
-    #     ml=[]
-    #     for i in range(len(self.liner.linesf)):
-    #         m=(liner.linesl[i][1]-liner.linesf[i][1])/(liner.linesl[0]-liner.linesf[0])
-    #         ml.append(m)
-    #     return ml
-    # def barrDetector(self,fp):
-    #     # if one laser crops an line 
-    #     mlist=self.barr(self.liner)
-    #     for i in self.lasersLastPoints:
-    #         for j in range(len(self.liner.linesf)):
-    #             # first condition is if laser's first point's x is lower then barrier's first point's x and laser's last point's x is higher then barrier's last point's x ....  
-    #             if ((fp[0]<self.liner.linesf[j][0] and i[0]>self.liner.linesl[j][0]) or (fp[1]<self.liner.linesf[j][1] and i[1]>self.liner.linesl[1]) ) or ( (fp[0]>self.liner.linesf[j][0] and i[0]<self.liner.linesl[j][0]) or (fp[1]>self.liner.linesf[j][1] and i[1]<self.liner.linesl[1])):
-    #                 self.lasersLastPoints[i]=50
     
     @staticmethod
     def barrfunc(linesf:list,linesl:list):
@@ -178,12 +161,12 @@ class LineRect(Drawable):
         #lasers 1. poin is middle point. 
         fp=((self.p1[0]+self.p3[0])/2,(self.p1[1]+self.p3[1])/2)
         dist=200   
-        self.laserangle+=radians(0.2)
-        rotatedist=(dist*cos(self.laserangle),dist*sin(self.laserangle))
+        self.laserangle=self.angle
+        rotatedist=(dist*cos(self.angle+radians(45)),dist*sin(self.angle+radians(45)))
         # laser points by rotate factor
         #  0-----0-----0
         #
-        self.lasersLastPoints= [(fp[0]+rotatedist[0],fp[1]+rotatedist[1]),(fp[0]+dist*cos(self.laserangle+radians(90)),fp[1]+dist*sin(self.laserangle+radians(90))),(fp[0]+dist*cos(self.laserangle+radians(180)),fp[1]+dist*sin(self.laserangle+radians(180))),(fp[0]+dist*cos(self.laserangle+radians(-90)),fp[1]+dist*sin(self.laserangle+radians(-90)))]
+        self.lasersLastPoints= [(fp[0]+rotatedist[0],fp[1]+rotatedist[1]),(fp[0]+dist*cos(self.angle+radians(135)),fp[1]+dist*sin(self.angle+radians(135))),(fp[0]+dist*cos(self.angle+radians(225)),fp[1]+dist*sin(self.angle+radians(225))),(fp[0]+dist*cos(self.angle+radians(-45)),fp[1]+dist*sin(self.angle+radians(-45)))]
         # laserpoint 4 için deneme Bunu tüm laserler için dönecez
         for j in range(len(self.lasersLastPoints)):
             barfinder=self.closestbar(fp,self.lasersLastPoints[j],linesf,linesl)
