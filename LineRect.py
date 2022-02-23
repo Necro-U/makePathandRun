@@ -143,9 +143,14 @@ class LineRect(Drawable):
             # if x of laser' first point lower then x of line's first point and x of last point of laser higher then x of line's last point  
             #((linesf[i][0]<fp[0] and linesl[i][0]>laslast[0] and (fp[0]<linesl[i][0] or laslast[0]>linesf[i][0]) ) or (linesf[i][0]>fp[0] and linesl[i][0]<laslast[0] and (fp[0]<linesl[i][0] or laslast[0]>linesf[i][0])) ) or (linesl[i][1]<laslast[1] and fp[1]<linesf[i][1] and (fp[1]<linesl[i][1] or laslast[1]>linesf[i][1])) or (linesl[i][1]>laslast[1] and fp[1]>linesf[i][1] and (fp[1]<linesl[i][1] or laslast[1]>linesf[i][1]))
             if (laser[0]*linesf[i][0]+laser[1] < linesf[i][1] and laser[0]*linesl[i][0]+laser[1] > linesl[i][1]) or (laser[0]*linesf[i][0]+laser[1] > linesf[i][1] and laser[0]*linesl[i][0]+laser[1] < linesl[i][1]) :
-                clist.append(i)
-                cbool=True
-            #burda yukardakinde 2 tane arka arkaya gelirse ne olur ona bir bak. Yukarıda uzaklık kontrolü de yapılıyor onu yapmamız gerekmiyor
+                barr=self.barrfunc(linesf,linesl)[i]
+                las=self.laserfunc(fp,laslast)
+                x=(barr[1]-las[1])/(las[0]-barr[0])
+                y=las[0]*x+las[1]
+                if self.pointdist(laslast,fp)>self.pointdist(laslast,(x,y)):
+                    clist.append(i)
+                    cbool=True
+
         return (cbool,clist)
 
 
@@ -177,20 +182,21 @@ class LineRect(Drawable):
         rotatedist=(dist*cos(self.laserangle),dist*sin(self.laserangle))
         # laser points by rotate factor
         #  0-----0-----0
-        #fp[0]+dist*cos(self.laserangle+radians(90)),fp[1]+dist*sin(self.laserangle+radians(90))
-        self.lasersLastPoints= [(fp[0]+rotatedist[0],fp[1]+rotatedist[1]),(fp),(fp[0]+dist*cos(self.laserangle+radians(180)),fp[1]+dist*sin(self.laserangle+radians(180))),(fp[0]+dist*cos(self.laserangle+radians(-90)),fp[1]+dist*sin(self.laserangle+radians(-90)))]
+        #
+        self.lasersLastPoints= [(fp[0]+rotatedist[0],fp[1]+rotatedist[1]),(fp[0]+dist*cos(self.laserangle+radians(90)),fp[1]+dist*sin(self.laserangle+radians(90))),(fp[0]+dist*cos(self.laserangle+radians(180)),fp[1]+dist*sin(self.laserangle+radians(180))),(fp[0]+dist*cos(self.laserangle+radians(-90)),fp[1]+dist*sin(self.laserangle+radians(-90)))]
         # laserpoint 4 için deneme Bunu tüm laserler için dönecez
-        barfinder=self.closestbar(fp,self.lasersLastPoints[3],linesf,linesl)
-        # barfinder[1].append(self.lasersLastPoints[3])
-        # last item of barfinder means self.laserLastPoints[3]
-        closestBarr=len(barfinder[1])-1
-        if barfinder[0]:
-            for i in barfinder[1]:
-                if self.pointdist(fp,self.lasercut(fp,self.lasersLastPoints[3],linesl,linesf,closestBarr))> self.pointdist(fp,self.lasercut(fp,self.lasersLastPoints[3],linesl,linesf,i)):#barfinder[1][i]
-                    closestBarr=i
-            if self.pointdist(fp,self.lasercut(fp,self.lasersLastPoints[3],linesl,linesf,closestBarr)) < 200**2:
-                self.lasersLastPoints[3]=self.lasercut(fp,self.lasersLastPoints[3],linesl,linesf,closestBarr)
-        # self.barrDetector(fp)
+        for j in range(len(self.lasersLastPoints)):
+            barfinder=self.closestbar(fp,self.lasersLastPoints[j],linesf,linesl)
+            # barfinder[1].append(self.lasersLastPoints[3])
+            # last item of barfinder means self.laserLastPoints[3]
+            closestBarr=len(barfinder[1])-1
+            if barfinder[0]:
+                for i in barfinder[1]:
+                    if self.pointdist(fp,self.lasercut(fp,self.lasersLastPoints[j],linesl,linesf,closestBarr))> self.pointdist(fp,self.lasercut(fp,self.lasersLastPoints[j],linesl,linesf,i)):#barfinder[1][i]
+                        closestBarr=i
+                if self.pointdist(fp,self.lasercut(fp,self.lasersLastPoints[j],linesl,linesf,closestBarr)) < 200**2:
+                    self.lasersLastPoints[j]=self.lasercut(fp,self.lasersLastPoints[j],linesl,linesf,closestBarr)
+            # self.barrDetector(fp)
         for i in self.lasersLastPoints:
             pygame.draw.line(self.surface,self.color,fp,i,2)
     
